@@ -5,6 +5,7 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 import os
 import random
+import urllib.request
 from PIL import Image
 
 # ===============================
