@@ -1,13 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.models import load_model
 import os
 import random
 import urllib.request
 from PIL import Image
+import tensorflow as tf
 
 # ===============================
 # CONFIGURACIÓN FLASK
@@ -16,7 +14,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ===============================
-# CARGAR MODELO
+# CONFIGURACIÓN MODELO TFLITE
 # ===============================
 MODEL_DIR = "models"
 MODEL_NAME = "modelo_fisuras_avanzado.tflite"
@@ -27,12 +25,20 @@ MODEL_URL = "https://huggingface.co/viccelo/Modelo_fisuras_avanzado/resolve/main
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 if not os.path.exists(MODEL_PATH):
-    print("⬇️ Descargando modelo entrenado...")
+    print("⬇️ Descargando modelo TFLite...")
     urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
-    print("✅ Modelo descargado")
+    print("✅ Modelo TFLite descargado")
 
-modelo = load_model(MODEL_PATH)
-print("🚀 Modelo cargado correctamente")
+# ===============================
+# CARGA DEL MODELO TFLITE
+# ===============================
+interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+print("🚀 Modelo TFLite cargado correctamente")
 
 # ===============================
 # CLASES
@@ -54,7 +60,7 @@ def severidad_aleatoria():
 # ===============================
 def preparar_imagen(img: Image.Image):
     img = img.resize((256, 256))
-    img_array = image.img_to_array(img)
+    img_array = np.array(img, dtype=np.float32) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
@@ -66,14 +72,15 @@ def predict():
     if "file" not in request.files:
         return jsonify({"error": "No se envió ninguna imagen"}), 400
 
-    file = request.files["file"]
-
     try:
-        img = Image.open(file).convert("RGB")
+        img = Image.open(request.files["file"]).convert("RGB")
         img_preparada = preparar_imagen(img)
 
-        prediccion = modelo.predict(img_preparada)
-        confianza = float(prediccion[0][0])
+        interpreter.set_tensor(input_details[0]["index"], img_preparada)
+        interpreter.invoke()
+        output = interpreter.get_tensor(output_details[0]["index"])
+
+        confianza = float(output[0][0])
 
         if confianza > 0.5:
             clase = 1
@@ -84,7 +91,6 @@ def predict():
 
         resultado = nombres_clases[clase]
 
-        # Severidad SOLO si hay grieta
         severidad = None
         if clase == 0:
             severidad = severidad_aleatoria()
@@ -98,9 +104,8 @@ def predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # ===============================
 # EJECUCIÓN
 # ===============================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
