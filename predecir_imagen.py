@@ -12,7 +12,7 @@ def preparar_imagen(ruta_imagen):
     img_array = image.img_to_array(img)
     return np.expand_dims(img_array, axis=0)
 
-# === FUNCIÓN PARA SEVERIDAD ALEATORIA ===
+# === FUNCIÓN PARA SEVERIDAD ===
 def severidad_aleatoria():
     return random.choice(["Fisura leve", "Fisura estándar", "Fisura grave"])
 

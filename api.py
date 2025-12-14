@@ -21,7 +21,7 @@ MODEL_DIR = "models"
 MODEL_NAME = "modelo_fisuras_avanzado.keras"
 MODEL_PATH = os.path.join(MODEL_DIR, MODEL_NAME)
 
-MODEL_URL = "https://drive.google.com/file/d/1vwxUA0RD_nWp3m-D83mOb4-67aj6FY6n/view?usp=drive_link"
+MODEL_URL = "https://drive.google.com/file/d/1vwxUA0RD_nWp3m-D83mOb4-67aj6FY6n/view?usp=sharing"
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
