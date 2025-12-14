@@ -19,10 +19,10 @@ CORS(app)
 # CARGAR MODELO
 # ===============================
 MODEL_DIR = "models"
-MODEL_NAME = "modelo_fisuras_avanzado.keras"
+MODEL_NAME = "modelo_fisuras_avanzado.tflite"
 MODEL_PATH = os.path.join(MODEL_DIR, MODEL_NAME)
 
-MODEL_URL = "https://huggingface.co/viccelo/Modelo_fisuras_avanzado/resolve/main/modelo_fisuras_avanzado.keras"
+MODEL_URL = "https://huggingface.co/viccelo/Modelo_fisuras_avanzado/resolve/main/modelo_fisuras_avanzado.tflite"
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
