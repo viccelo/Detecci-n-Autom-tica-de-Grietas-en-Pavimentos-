@@ -3,6 +3,7 @@ from flask_cors import CORS
 import tensorflow as tf
 import numpy as np
 from tensorflow.keras.preprocessing import image
+from tensorflow.keras.models import load_model
 import os
 import random
 import urllib.request
